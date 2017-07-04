@@ -1,7 +1,6 @@
 #ifndef GL_SCRATCH_H
 #define GL_SCRATCH_H
 
-#include <QtOpenGL>
 #include <QGLFormat>
 
 class GlScratchWidget : public QGLWidget
@@ -11,6 +10,13 @@ class GlScratchWidget : public QGLWidget
 public:
     GlScratchWidget(QWidget *parent = 0);
     ~GlScratchWidget() {};
+
+protected:
+    std::string readShaderCode(std::string fname);
+    void sendDataToOpenGl();
+    void installShaders();
+    void initializeGL() override;
+    void paintGL() override;
 
 };
 

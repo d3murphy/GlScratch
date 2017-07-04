@@ -40,3 +40,7 @@ Release
 
 *.opensdf
 *.sdf
+
+# VS Files
+*.filters
+*.user
