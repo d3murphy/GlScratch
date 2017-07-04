@@ -37,3 +37,6 @@ Middleware
 # Ignore build folders
 Debug
 Release
+
+*.opensdf
+*.sdf
