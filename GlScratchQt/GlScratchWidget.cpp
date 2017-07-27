@@ -17,14 +17,23 @@ void GlScratchWidget::sendDataToOpenGl()
     //Vertex data
     GLfloat verts[] =
     {
+        -1.0f, -1.0f,
+        +1.0f, +0.0f, +0.0f,
+
         +0.0f, +1.0f,
         +1.0f, +0.0f, +0.0f,
 
-        -1.0f, -1.0f,
-        +0.0f, +1.0f, +0.0f,
-
         +1.0f, -1.0f,
-        +0.0f, +0.0f, +1.0f
+        +1.0f, +0.0f, +0.0f,
+
+        -1.0f, +1.0f,
+        +0.0f, +0.0f, +1.0f,
+
+        +0.0f, -1.0f,
+        +0.0f, +0.0f, +1.0f,
+
+        +1.0f, +1.0f,
+        +0.0f, +0.0f, +1.0f,
     };
 
     GLuint vertexBufferId;
@@ -48,6 +57,7 @@ void GlScratchWidget::sendDataToOpenGl()
     GLushort indices[] =
     {
         0, 1, 2,
+        3, 4, 5,
     };
 
     GLuint indexBufferId;
