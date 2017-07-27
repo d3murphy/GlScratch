@@ -1,7 +1,9 @@
 #include "gl/glew.h"
 #include "GlScratchWidget.h"
+#include <qmessagebox.h>
 
 #include <fstream>
+#include <iostream>
 
 GlScratchWidget::GlScratchWidget(QWidget *parent)
     : QGLWidget(parent)
@@ -15,20 +17,14 @@ void GlScratchWidget::sendDataToOpenGl()
     //Vertex data
     GLfloat verts[] =
     {
-        +0.0f, +0.0f,
-        +1.0f, +0.0f, +0.0f,
-
-        +1.0f, +1.0f,
-        +1.0f, +0.0f, +0.0f,
-
-        -1.0f, +1.0f,
+        +0.0f, +1.0f,
         +1.0f, +0.0f, +0.0f,
 
         -1.0f, -1.0f,
-        +1.0f, +0.0f, +0.0f,
+        +0.0f, +1.0f, +0.0f,
 
         +1.0f, -1.0f,
-        +1.0f, +0.0f, +0.0f,
+        +0.0f, +0.0f, +1.0f
     };
 
     GLuint vertexBufferId;
@@ -52,7 +48,6 @@ void GlScratchWidget::sendDataToOpenGl()
     GLushort indices[] =
     {
         0, 1, 2,
-        0, 3, 4
     };
 
     GLuint indexBufferId;
@@ -66,7 +61,6 @@ void GlScratchWidget::sendDataToOpenGl()
 std::string GlScratchWidget::readShaderCode(std::string fname)
 {
     std::ifstream fileInput(fname);
-    std::string contents;
 
     if (fileInput.fail())
     {
@@ -77,6 +71,64 @@ std::string GlScratchWidget::readShaderCode(std::string fname)
         std::istreambuf_iterator<char>(fileInput),
         std::istreambuf_iterator<char>());
 }
+
+bool GlScratchWidget::checkShaderStatus(GLuint shaderId)
+{
+    bool compileSuccess = true;
+    GLint compileStatus;
+
+    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus);
+    if (compileStatus != GL_TRUE)
+    {
+        compileSuccess = false;
+        GLint logLength;
+        glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLength);
+
+        GLchar * buffer = new GLchar[logLength];
+        GLsizei actualSize = 0;
+        glGetShaderInfoLog(shaderId, logLength, &actualSize, buffer);
+
+        QString message(buffer);
+        QMessageBox box(this);
+        box.setWindowTitle(QString("Compile Error!"));
+        box.setText(message);
+        box.exec();
+
+        delete[] buffer;
+    }
+
+    return compileSuccess;
+}
+
+bool GlScratchWidget::checkProgramStatus(GLuint programId)
+{
+    bool linkSuccess = true;
+    GLint status;
+
+    glGetProgramiv(programId, GL_LINK_STATUS, &status);
+    if (status != GL_TRUE)
+    {
+        linkSuccess = false;
+        GLint logLength;
+        glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLength);
+
+        GLchar * buffer = new GLchar[logLength];
+        GLsizei actualSize = 0;
+        glGetProgramInfoLog(programId, logLength, &actualSize, buffer);
+
+        QString message(buffer);
+        QMessageBox box(this);
+        box.setWindowTitle(QString("Link Error!"));
+        box.setText(message);
+        box.exec();
+
+        delete[] buffer;
+    }
+
+    return linkSuccess;
+}
+
+
 
 void GlScratchWidget::installShaders()
 {
@@ -91,19 +143,28 @@ void GlScratchWidget::installShaders()
 
     cStrPtr = fragmentShaderCode.c_str();
     glShaderSource(fShaderId, 1, &cStrPtr, 0);
-
-    //TODO: Check compile errors
+    
     glCompileShader(vShaderId);
     glCompileShader(fShaderId);
 
+
+    if (!checkShaderStatus(vShaderId) ||
+        !checkShaderStatus(fShaderId) )
+    {
+        return;
+    }
+    
     GLuint programId = glCreateProgram();
     glAttachShader(programId, vShaderId);
     glAttachShader(programId, fShaderId);
 
-    //TODO: Check link errors
     glLinkProgram(programId);
-
     glUseProgram(programId);
+
+    if (!checkProgramStatus(programId))
+    {
+        return;
+    }
 }
 
 

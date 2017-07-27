@@ -14,6 +14,9 @@ public:
 protected:
     std::string readShaderCode(std::string fname);
     void sendDataToOpenGl();
+    bool checkShaderStatus(GLuint shaderId);
+    bool checkProgramStatus(GLuint programId);
+
     void installShaders();
     void initializeGL() override;
     void paintGL() override;
